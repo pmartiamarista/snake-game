@@ -1,0 +1,58 @@
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Testing
+*.profraw
+*.profdata
+
+# Documentation
+/doc/
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+
+# OS specific
+Thumbs.db
+.directory
+
+# Environment variables
+.env
+.env.local
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frontend build artifacts
+frontend/public/bootstrap.js
+frontend/public/*.map
+frontend/dist/
+
+# WASM build artifacts
+pkg/snippets/
+*.wasm.map
+
+# Logs
+logs
+*.log

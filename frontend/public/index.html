@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snake Game</title>
+  <style>
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji; background: #0d1117; color: #c9d1d9; }
+    header { padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #21262d; position: relative; }
+    #game-control-btn { background: #238636; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+    #game-control-btn:hover { background: #2ea043; }
+    #status { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+    #score { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    main { display: grid; place-items: center; padding: 24px; }
+    canvas { background: #0b0f14; border: 1px solid #30363d; }
+  </style>
+  <script defer src="/bootstrap.js"></script>
+</head>
+<body>
+  <header>
+    <button id="game-control-btn">Start</button>
+    <div id="score">Score: 0</div>
+    <div id="status">Ready</div>
+  </header>
+  <main>
+    <canvas id="snake-canvas" width="640" height="640" aria-label="Snake game area"></canvas>
+  </main>
+</body>
+</html>
