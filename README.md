@@ -4,8 +4,7 @@ A premium, high-performance Snake game built with a **Rust WASM** core and a **T
 
 ## 🚀 Key Features
 
-- **Dual-Loop Architecture**: High-fidelity 60FPS rendering loop decoupled from chunky game physics logic.
-- **Unified Engine**: Merged logic and render loops using `requestAnimationFrame` for stutter-free mobile experience.
+- **Unified Engine**: Single `requestAnimationFrame` loop with high-precision timestamp accumulation (Fix Your Timestep) for stutter-free 60FPS rendering decoupled from physics logic.
 - **Intelligent Pause**: Full pause/resume support via `Space`, `Enter`, or dedicated mobile controls with visual modal.
 - **Mobile First**: Responsive board scaling, touch-optimized D-pad, and safe-area (notch) support.
 - **High-DPI Scaling**: Automatic DPR detection and canvas scaling for pixel-perfect rendering on Retina and mobile displays.
@@ -13,6 +12,7 @@ A premium, high-performance Snake game built with a **Rust WASM** core and a **T
 - **Premium Visuals**: Neon Dark aesthetic with glassmorphism UI and real-time particle feedback.
 - **Procedural Audio**: Dynamic sound effects generated using the Web Audio API.
 - **Modern Build Stack**: Powered by Vite 8.0.8, TypeScript 6.0.3, and Rust 2024.
+- **Persistence Layer**: Decoupled `StorageProvider` for managed high-score tracking.
 - **Production Ready**: Express.js server with security headers and Gzip compression.
 
 ## 🏗️ Architecture
@@ -89,21 +89,26 @@ This codebase strictly adheres to the following engineering standards:
 
 Game parameters are managed via environment variables in the `.env` file:
 
-| Variable | Description | Default |
+| Variable | Description | Recommended/Default |
 |----------|-------------|---------|
-| `VITE_WORLD_WIDTH` | Grid dimension of the game world (cells are sized dynamically) | `32` |
+| `VITE_WORLD_WIDTH` | Grid dimension (square) of the game world | `64` (Code fallback: `32`) |
 | `PORT` | Production server listening port | `3000` |
 | `DEV_SERVER_PORT` | Vite development server port | `8000` |
 | `NODE_ENV` | Mode (`development` or `production`) | `development` |
-| `HOT_RELOAD` | Enable HMR for frontend development | `true` |
 | `COMPRESSION` | Enable Gzip compression in production | `true` |
+
+### 🔍 Service Endpoints
+- **Health Check**: `GET /health` returns JSON status, timestamp, and version.
+
 
 ## 🕹️ Controls
 - **Movement**: Arrow Keys / WASD / Mobile D-pad
-- **Commands**: `Enter` to Start or Restart (when Game Over)
+- **Commands**: `Space` or `Enter` to Start, Restart, or Toggle Pause
+- **Mobile**: Dedicated `⏸` button for quick pause/resume
 - **Settings**: Real-time difficulty/speed selection on Home Screen
 
-## 🐳 Deployment
+The following `Dockerfile` is provided as a reference for containerized deployment. Note: You must build the project locally or via `make build-all` before creating the image if using a simple scratch build.
+
 ```dockerfile
 FROM node:22-alpine
 WORKDIR /app
