@@ -45,14 +45,20 @@ yarn-debug.log*
 yarn-error.log*
 
 # Frontend build artifacts
-frontend/public/bootstrap.js
+frontend/public/*.js
+frontend/public/*.wasm
+frontend/public/*.d.ts
 frontend/public/*.map
+!frontend/public/index.html
 frontend/dist/
 
 # WASM build artifacts
-pkg/snippets/
+/pkg/
 *.wasm.map
 
 # Logs
 logs
 *.log
+
+
+.agents/

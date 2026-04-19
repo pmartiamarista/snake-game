@@ -141,20 +141,43 @@ BASE_CELL_SIZE=20
 - **`server/index.js`**: Express server
 - **`pkg/`**: Generated WASM bindings
 
-### Build Process
+### Makefile Commands
 
-1. **Rust → WASM**: `cargo build --target wasm32-unknown-unknown --release`
-2. **WASM Bindings**: `wasm-bindgen` generates JS/TS bindings
-3. **Environment Variables**: Webpack `DefinePlugin` injects `.env` variables
-4. **Frontend Build**: Webpack bundles TypeScript + WASM with optimizations
-5. **Server**: Express serves static files from `frontend/public/`
+```bash
+make build-all    # Full build: WASM + Frontend
+make start        # Run Express server
+make dev          # WASM build + Webpack dev server
+make test         # Run Rust unit tests
+make clean        # Remove all build artifacts
+```
 
-### Code Quality
+### Installation
 
-- **Rust**: Follows SOLID principles, clean architecture
-- **TypeScript**: Environment-driven configuration, no hardcoded values
-- **Webpack**: Optimized builds with code splitting, tree shaking, filesystem caching
-- **Makefile**: Convenient commands for full build pipeline
+1. **Install dependencies**
+   ```bash
+   npm install
+   cd frontend && npm install
+   ```
+
+2. **Build and Run**
+   ```bash
+   make build-all
+   make start
+   ```
+
+## ⚙️ Development
+
+### Project Structure
+
+- **`src/`**: Modular Rust game logic (`snake`, `world`, `utils`).
+- **`frontend/`**: TypeScript interface and Webpack configuration.
+- **`server/`**: Production Express server.
+- **`pkg/`**: Generated WASM bindings.
+
+### Quality Assurance
+
+- **Rust**: idiomatic patterns, no comments, high modularity.
+- **Testing**: logic verified via `src/world/tests.rs` and `src/snake/tests.rs`.
 
 ## 📁 File Structure
 
