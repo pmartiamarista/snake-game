@@ -1,4 +1,4 @@
-# Snake.WASM (v1.2.1)
+# Snake.WASM (v1.2.2)
 
 A premium, high-performance Snake game built with a **Rust WASM** core and a **TypeScript** frontend. This project demonstrates a modern dual-loop architecture, procedural visual effects, and strict engineering standards.
 

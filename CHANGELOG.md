@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2026-04-20
+
+### Added
+- **Unified Action Keys**: Full `Enter` and `Space` support for Start, Restart, and Pause/Resume actions from any screen.
+- **Explicit Deployment Control**: Added `VITE_BASE_URL` to environment configuration for reliable subpath hosting.
+
+### Changed
+- **Bootstrapper Refactor**: Keyboard listeners are now initialized immediately upon WASM readiness, enabling "Press Enter to Start" on the first load.
+- **Dynamic Base Path**: Frontend now respects `VITE_BASE_URL` for asset resolution.
+
+### Fixed
+- **GitHub Pages Asset 404s**: Synchronized GitHub Actions workflow (`static.yml`) with correct environment variable mapping and project standards.
+- **Health Check Versioning**: Synchronized server status endpoint with project version.
+
 ## [1.2.1] - 2026-04-19
 
 ### Added

@@ -52,7 +52,7 @@ app.get('/health', (req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    version: '1.2.1'
+    version: '1.2.2'
   });
 });
 

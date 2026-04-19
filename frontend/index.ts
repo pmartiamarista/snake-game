@@ -95,6 +95,7 @@ class SnakeGame {
     });
     document.getElementById("start-btn")?.addEventListener("click", () => this.start());
     document.getElementById("restart-btn")?.addEventListener("click", () => this.restart());
+    document.getElementById("resume-btn")?.addEventListener("click", () => this.handleActionKey());
     document.getElementById("mobile-pause")?.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       this.handleActionKey();
@@ -248,25 +249,24 @@ class Bootstrapper {
     btn.disabled = false;
     btn.textContent = "START GAME";
     
-    btn.addEventListener("click", () => {
-      updateStatus("Active");
-      const baseWorldWidth = parseInt((import.meta.env.VITE_WORLD_WIDTH as string) || "32");
-      const worldWidth = computeWorldWidth(baseWorldWidth);
-      const cellSize = computeCellSize(worldWidth);
+    updateStatus("Systems Ready.");
+    
+    const baseWorldWidth = parseInt((import.meta.env.VITE_WORLD_WIDTH as string) || "32");
+    const worldWidth = computeWorldWidth(baseWorldWidth);
+    const cellSize = computeCellSize(worldWidth);
 
-      const config: GameConfig = {
-        cellSize,
-        width: worldWidth
-      };
-      const world = World.new(config.width, Math.floor(Math.random() * config.width * config.width));
-      const game = new SnakeGame({
-        wasm,
-        world,
-        sound: new SoundManager(),
-        storage: new LocalStorageProvider(),
-        config
-      });
-      game.start();
+    const config: GameConfig = {
+      cellSize,
+      width: worldWidth
+    };
+
+    const world = World.new(config.width, Math.floor(Math.random() * config.width * config.width));
+    new SnakeGame({
+      wasm,
+      world,
+      sound: new SoundManager(),
+      storage: new LocalStorageProvider(),
+      config
     });
   }
 }
