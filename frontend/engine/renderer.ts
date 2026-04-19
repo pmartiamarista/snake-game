@@ -18,6 +18,17 @@ export class Renderer {
 
   constructor(config: RendererConfig) {
     this.config = config;
+    this.setupHighDPI();
+  }
+
+  private setupHighDPI() {
+    const dpr = window.devicePixelRatio || 1;
+    const { canvas } = this.config.ctx;
+    const rect = canvas.getBoundingClientRect();
+    
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    this.config.ctx.scale(dpr, dpr);
   }
 
   /**
@@ -55,9 +66,21 @@ export class Renderer {
     this.config.ctx.shadowColor = "#f85149";
     this.config.ctx.fillStyle = "#f85149";
     this.config.ctx.beginPath();
-    this.config.ctx.roundRect(x + 2, y + 2, this.config.cellSize - 4, this.config.cellSize - 4, 4);
+    this.drawRoundedRect(x + 2, y + 2, this.config.cellSize - 4, this.config.cellSize - 4, 4);
     this.config.ctx.fill();
     this.config.ctx.shadowBlur = 0;
+  }
+
+  private drawRoundedRect(x: number, y: number, w: number, h: number, r: number) {
+    if (this.config.ctx.roundRect) {
+      this.config.ctx.roundRect(x, y, w, h, r);
+    } else {
+      this.config.ctx.moveTo(x + r, y);
+      this.config.ctx.arcTo(x + w, y, x + w, y + h, r);
+      this.config.ctx.arcTo(x + w, y + h, x, y + h, r);
+      this.config.ctx.arcTo(x, y + h, x, y, r);
+      this.config.ctx.arcTo(x, y, x + w, y, r);
+    }
   }
 
   private drawSnake() {
@@ -74,7 +97,7 @@ export class Renderer {
       this.config.ctx.fillStyle = index === 0 ? "#58a6ff" : `rgb(124, 58, ${green})`;
 
       this.config.ctx.beginPath();
-      this.config.ctx.roundRect(x + 1, y + 1, this.config.cellSize - 2, this.config.cellSize - 2, index === 0 ? 6 : 4);
+      this.drawRoundedRect(x + 1, y + 1, this.config.cellSize - 2, this.config.cellSize - 2, index === 0 ? 6 : 4);
       this.config.ctx.fill();
     });
     this.config.ctx.shadowBlur = 0;

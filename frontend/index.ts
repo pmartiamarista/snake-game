@@ -29,8 +29,9 @@ class SnakeGame {
     
     const canvas = document.getElementById("snake-canvas") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    canvas.width = config.width * config.cellSize;
-    canvas.height = config.width * config.cellSize;
+    
+    canvas.style.width = `${config.width * config.cellSize}px`;
+    canvas.style.height = `${config.width * config.cellSize}px`;
     
     this.renderer = new Renderer({
       ctx,
@@ -41,21 +42,6 @@ class SnakeGame {
     });
     this.attachControls();
     this.renderLoop();
-  }
-
-  /**
-   * Initializes the game engine and WASM module.
-   */
-  static async init() {
-    const wasm = await init();
-    const config: GameConfig = {
-      cellSize: parseInt((import.meta.env.VITE_CELL_SIZE as string) || "20"),
-      width: parseInt((import.meta.env.VITE_WORLD_WIDTH as string) || "32")
-    };
-    const world = World.new(config.width, Math.floor(Math.random() * config.width * config.width));
-    const sound = new SoundManager();
-    
-    return new SnakeGame(wasm, world, sound, config);
   }
 
   private attachControls() {
@@ -107,7 +93,7 @@ class SnakeGame {
     this.sound.playMove();
   }
 
-  private start() {
+  public start() {
     this.sound.init();
     document.getElementById("start-overlay")?.classList.add("hidden");
     document.getElementById("game-over-overlay")?.classList.add("hidden");
@@ -169,4 +155,53 @@ class SnakeGame {
   }
 }
 
-SnakeGame.init();
+/**
+ * Orchestrates the pre-flight checks and engine initialization.
+ */
+class Bootstrapper {
+  static async run() {
+    const statusEl = document.getElementById("loading-status")!;
+    const startBtn = document.getElementById("start-btn") as HTMLButtonElement;
+
+    const updateStatus = (msg: string, isError = false) => {
+      statusEl.textContent = msg;
+      statusEl.style.color = isError ? "var(--accent-red)" : "var(--text-dim)";
+    };
+
+    try {
+      updateStatus("Checking browser compatibility...");
+      if (typeof WebAssembly !== "object") {
+        throw new Error("WebAssembly is not supported.");
+      }
+
+      updateStatus("Loading engine...");
+      const wasm = await init();
+      
+      updateStatus("Preparing assets...");
+      await document.fonts.ready;
+
+      updateStatus("Systems ready.");
+      this.enableEngine(wasm, startBtn, updateStatus);
+    } catch (err) {
+      updateStatus(`Error: ${err instanceof Error ? err.message : String(err)}`, true);
+    }
+  }
+
+  private static enableEngine(wasm: InitOutput, btn: HTMLButtonElement, updateStatus: (m: string) => void) {
+    btn.disabled = false;
+    btn.textContent = "START ENGINE";
+    
+    btn.addEventListener("click", () => {
+      updateStatus("Active");
+      const config: GameConfig = {
+        cellSize: parseInt((import.meta.env.VITE_CELL_SIZE as string) || "20"),
+        width: parseInt((import.meta.env.VITE_WORLD_WIDTH as string) || "32")
+      };
+      const world = World.new(config.width, Math.floor(Math.random() * config.width * config.width));
+      const game = new SnakeGame(wasm, world, new SoundManager(), config);
+      game.start();
+    });
+  }
+}
+
+Bootstrapper.run();

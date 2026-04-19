@@ -94,6 +94,7 @@ main {
 canvas {
   display: block;
   image-rendering: pixelated;
+  touch-action: none;
 }
 
 /* Overlays */
@@ -208,6 +209,7 @@ h2 {
   font-size: 1.5rem;
   backdrop-filter: var(--glass-blur);
   -webkit-tap-highlight-color: transparent;
+  touch-action: none;
 }
 
 .ctrl-btn:active {
@@ -221,8 +223,20 @@ h2 {
 .right { grid-area: right; }
 
 @media (max-width: 768px) {
+  body {
+    overflow: auto;
+  }
+  main {
+    padding: 1rem;
+    padding-bottom: 12rem;
+  }
   .mobile-controls {
     display: grid;
+    bottom: 1.5rem;
+  }
+  .canvas-container {
+    max-width: 100%;
+    border-width: 2px;
   }
   .stats {
     gap: 1rem;
