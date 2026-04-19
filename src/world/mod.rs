@@ -2,6 +2,8 @@ use crate::snake::{Direction, Snake, SnakeCell};
 use crate::utils::random;
 use wasm_bindgen::prelude::*;
 
+const WORLD_FULL_SENTINEL: usize = usize::MAX;
+
 #[wasm_bindgen]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GameStatus {
@@ -177,7 +179,7 @@ impl World {
             if self.snake_length() < self.size {
                 self.reward_cell = World::gen_reward_cell(self.size, &self.snake.body);
             } else {
-                self.reward_cell = 1000;
+                self.reward_cell = WORLD_FULL_SENTINEL;
             }
             self.snake.body.push(SnakeCell(self.snake.body[1].0));
         }

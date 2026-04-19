@@ -1,6 +1,15 @@
 import init, { World, Direction, GameStatus, InitOutput } from "../pkg/snake_game.js";
 import { SoundManager } from "./engine/sound";
 import { Renderer } from "./engine/renderer";
+import { StorageProvider, LocalStorageProvider } from "./engine/storage";
+
+interface GameDependencies {
+  wasm: InitOutput;
+  world: World;
+  sound: SoundManager;
+  storage: StorageProvider;
+  config: GameConfig;
+}
 
 interface GameConfig {
   width: number;
@@ -13,38 +22,44 @@ interface GameConfig {
 class SnakeGame {
   private world: World;
   private sound: SoundManager;
+  private storage: StorageProvider;
   private renderer: Renderer;
   private fps: number = 10;
   private config: GameConfig;
-  private scoreValue: HTMLElement;
-  private highScoreValue: HTMLElement;
+  private scoreValue!: HTMLElement;
+  private highScoreValue!: HTMLElement;
 
-  constructor(wasm: InitOutput, world: World, sound: SoundManager, config: GameConfig) {
-    this.world = world;
-    this.sound = sound;
-    this.config = config;
+  constructor(deps: GameDependencies) {
+    this.world = deps.world;
+    this.sound = deps.sound;
+    this.storage = deps.storage;
+    this.config = deps.config;
     
-    this.scoreValue = document.getElementById("score")!;
-    this.highScoreValue = document.getElementById("high-score")!;
+    this.bindUI();
     
     const canvas = document.getElementById("snake-canvas") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     
     this.renderer = new Renderer({
       ctx,
-      world,
-      cellSize: config.cellSize,
-      worldSize: config.width,
-      wasmMemory: wasm.memory
+      world: deps.world,
+      cellSize: deps.config.cellSize,
+      worldSize: deps.config.width,
+      wasmMemory: deps.wasm.memory
     });
     
     requestAnimationFrame(() => {
-      this.renderer.resize(config.cellSize);
+      this.renderer.resize(this.config.cellSize);
     });
 
     this.attachControls();
     this.setupResizeObserver();
     this.renderLoop();
+  }
+
+  private bindUI() {
+    this.scoreValue = document.getElementById("score")!;
+    this.highScoreValue = document.getElementById("high-score")!;
   }
 
   private setupResizeObserver() {
@@ -164,10 +179,10 @@ class SnakeGame {
   private updateUI() {
     const score = this.world.score();
     this.scoreValue.textContent = score.toString();
-    const stored = localStorage.getItem("snake-high-score");
+    const stored = this.storage.getItem("snake-high-score");
     const lastHigh = parseInt(stored || "0");
     if (score > lastHigh) {
-      localStorage.setItem("snake-high-score", score.toString());
+      this.storage.setItem("snake-high-score", score.toString());
       this.highScoreValue.textContent = score.toString();
     }
   }
@@ -225,7 +240,13 @@ class Bootstrapper {
         width: worldWidth
       };
       const world = World.new(config.width, Math.floor(Math.random() * config.width * config.width));
-      const game = new SnakeGame(wasm, world, new SoundManager(), config);
+      const game = new SnakeGame({
+        wasm,
+        world,
+        sound: new SoundManager(),
+        storage: new LocalStorageProvider(),
+        config
+      });
       game.start();
     });
   }

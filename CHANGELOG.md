@@ -2,7 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.0] - 2026-04-19
+## [1.2.0] - 2026-04-19
+
+### Added
+- `StorageProvider` abstraction to decouple high-score persistence from game logic.
+- `LocalStorageProvider` implementation for browser-based storage.
+
+### Changed
+- Refactored `SnakeGame` constructor to use a `GameDependencies` object, adhering to strict parameter limits and improving testability.
+- Modernized Vite configuration: removed `vite-plugin-top-level-await` in favor of native ESNext support.
+- Optimized bundle size by eliminating the TLA plugin and its heavy `@swc/core` dependency.
+- Fixed server integration by resetting Vite `base` to `/`.
+
+### Removed
+- `wee_alloc` global allocator from Rust core (deprecated/vulnerable); now uses the default high-performance WASM allocator.
+- Deleted dead code: `frontend/bootstrap.js`.
+
+### Fixed
+- Replaced magic number sentinel (`1000`) in `World` logic with a named constant `WORLD_FULL_SENTINEL` (set to `usize::MAX`).
 
 ### Added
 - High-DPI (DPR) canvas scaling support for sharp rendering on mobile and retina displays.
