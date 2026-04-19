@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.resolve(__dirname, '..'), '');
 
   return {
-    base: '/',
+    base: env.VITE_BASE_URL || '/',
     plugins: [
       wasm()
     ],

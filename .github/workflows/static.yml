@@ -61,12 +61,12 @@ jobs:
 
       - name: Build Frontend
         env:
-          PORT: ${{ vars.PORT }}
-          NODE_ENV: ${{ vars.NODE_ENV }}
-          WORLD_WIDTH: ${{ vars.WORLD_WIDTH }}
-          CELL_SIZE: ${{ vars.CELL_SIZE }}
-          DEV_SERVER_PORT: ${{ vars.DEV_SERVER_PORT }}
-          COMPRESSION: ${{ vars.COMPRESSION }}
+          VITE_BASE_URL: /snake-game/
+          VITE_WORLD_WIDTH: ${{ vars.VITE_WORLD_WIDTH || vars.WORLD_WIDTH || 64 }}
+          PORT: ${{ vars.PORT || 3000 }}
+          NODE_ENV: production
+          DEV_SERVER_PORT: ${{ vars.DEV_SERVER_PORT || 8000 }}
+          COMPRESSION: ${{ vars.COMPRESSION || 'true' }}
         run: |
           cd frontend && npm run build
 

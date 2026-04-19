@@ -91,6 +91,7 @@ Game parameters are managed via environment variables in the `.env` file:
 
 | Variable | Description | Recommended/Default |
 |----------|-------------|---------|
+| `VITE_BASE_URL` | Base path for high-level deployment (e.g., `/snake-game/`) | `/` |
 | `VITE_WORLD_WIDTH` | Grid dimension (square) of the game world | `64` (Code fallback: `32`) |
 | `PORT` | Production server listening port | `3000` |
 | `DEV_SERVER_PORT` | Vite development server port | `8000` |
