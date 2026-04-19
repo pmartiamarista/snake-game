@@ -15,10 +15,7 @@ export default defineConfig(({ mode }) => {
       wasm(),
       topLevelAwait()
     ],
-    define: {
-      'import.meta.env.VITE_CELL_SIZE': JSON.stringify(env.CELL_SIZE || '20'),
-      'import.meta.env.VITE_WORLD_WIDTH': JSON.stringify(env.WORLD_WIDTH || '32'),
-    },
+
     publicDir: 'public',
     server: {
       port: parseInt(env.DEV_SERVER_PORT || '8000'),

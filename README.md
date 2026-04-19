@@ -5,6 +5,8 @@ A premium, high-performance Snake game built with a **Rust WASM** core and a **T
 ## 🚀 Key Features
 
 - **Dual-Loop Architecture**: High-fidelity 60FPS rendering loop decoupled from chunky game physics logic.
+- **Mobile Responsive Engine**: Fully adaptive layout with `ResizeObserver` tracking and iOS safe-area support.
+- **High-DPI Scaling**: Automatic DPR detection and canvas scaling for pixel-perfect rendering on Retina and mobile displays.
 - **Rust WASM Core**: Optimized game state management with self-contained random generation via `js-sys`.
 - **Premium Visuals**: Neon Dark aesthetic with glassmorphism UI and real-time particle feedback.
 - **Procedural Audio**: Dynamic sound effects generated using the Web Audio API.
@@ -87,8 +89,7 @@ Game parameters are managed via environment variables in the `.env` file:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `VITE_WORLD_WIDTH` | Grid dimension of the game world | `32` |
-| `VITE_CELL_SIZE` | Individual cell size in pixels | `20` |
+| `VITE_WORLD_WIDTH` | Grid dimension of the game world (cells are sized dynamically) | `32` |
 | `PORT` | Production server listening port | `3000` |
 | `DEV_SERVER_PORT` | Vite development server port | `8000` |
 | `NODE_ENV` | Mode (`development` or `production`) | `development` |

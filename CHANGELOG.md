@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-04-19
+
+### Added
+- High-DPI (DPR) canvas scaling support for sharp rendering on mobile and retina displays.
+- Dynamic `cellSize` computation based on viewport dimensions.
+- Adaptive grid density (`worldSize`) for ultra-narrow screens (e.g., iPhone SE).
+- `ResizeObserver` for robust orientation change and viewport reflow management.
+- Support for iOS safe-area insets (`viewport-fit=cover`, `env(safe-area-inset-bottom)`).
+
+### Changed
+- Decoupled `Renderer` initialization from constructor to handle asynchronous layout reflow.
+- Standardized environment variables with `VITE_` prefix for client-side exposure.
+- Obsoleted fixed `CELL_SIZE` environment variable in favor of dynamic calculation.
+
+### Fixed
+- Bug where the snake would "disappear" or appear tiny on mobile devices due to DPR mismatch.
+- Horizontal overflow issues on small viewports.
+- Mobile controls overlapping the game board or sitting under home indicators.
+
+
 ## [1.0.0] - 2026-04-19
 
 ### Added

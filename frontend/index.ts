@@ -30,9 +30,6 @@ class SnakeGame {
     const canvas = document.getElementById("snake-canvas") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     
-    canvas.style.width = `${config.width * config.cellSize}px`;
-    canvas.style.height = `${config.width * config.cellSize}px`;
-    
     this.renderer = new Renderer({
       ctx,
       world,
@@ -40,8 +37,34 @@ class SnakeGame {
       worldSize: config.width,
       wasmMemory: wasm.memory
     });
+    
+    requestAnimationFrame(() => {
+      this.renderer.resize(config.cellSize);
+    });
+
     this.attachControls();
+    this.setupResizeObserver();
     this.renderLoop();
+  }
+
+  private setupResizeObserver() {
+    const container = document.querySelector(".canvas-container") as HTMLElement;
+    const observer = new ResizeObserver(() => {
+      const newCellSize = computeCellSize(this.config.width);
+      if (newCellSize === this.config.cellSize) return;
+
+      const isPlaying = this.world.game_status() === GameStatus.Played;
+      if (isPlaying) {
+        this.world.toggle_pause();
+        this.config.cellSize = newCellSize;
+        this.renderer.resize(newCellSize);
+        this.world.toggle_pause();
+      } else {
+        this.config.cellSize = newCellSize;
+        this.renderer.resize(newCellSize);
+      }
+    });
+    observer.observe(container);
   }
 
   private attachControls() {
@@ -193,15 +216,45 @@ class Bootstrapper {
     
     btn.addEventListener("click", () => {
       updateStatus("Active");
+      const baseWorldWidth = parseInt((import.meta.env.VITE_WORLD_WIDTH as string) || "32");
+      const worldWidth = computeWorldWidth(baseWorldWidth);
+      const cellSize = computeCellSize(worldWidth);
+
       const config: GameConfig = {
-        cellSize: parseInt((import.meta.env.VITE_CELL_SIZE as string) || "20"),
-        width: parseInt((import.meta.env.VITE_WORLD_WIDTH as string) || "32")
+        cellSize,
+        width: worldWidth
       };
       const world = World.new(config.width, Math.floor(Math.random() * config.width * config.width));
       const game = new SnakeGame(wasm, world, new SoundManager(), config);
       game.start();
     });
   }
+}
+
+function computeCellSize(worldWidth: number): number {
+  const header = document.querySelector("header");
+  const headerHeight = header ? header.getBoundingClientRect().height : 64;
+
+  const isMobile = window.innerWidth <= 768;
+  const controlsReserved = isMobile ? 180 : 0;
+  const safeAreaBottom = 24;
+
+  const availableWidth = window.innerWidth - 16;
+  const availableHeight = window.innerHeight
+    - headerHeight
+    - controlsReserved
+    - safeAreaBottom
+    - 16;
+
+  const availableSize = Math.min(availableWidth, availableHeight);
+  const rawCellSize = Math.floor(availableSize / worldWidth);
+
+  return Math.max(8, rawCellSize);
+}
+
+function computeWorldWidth(baseWidth: number): number {
+  if (window.innerWidth < 400) return Math.min(baseWidth, 24);
+  return baseWidth;
 }
 
 Bootstrapper.run();

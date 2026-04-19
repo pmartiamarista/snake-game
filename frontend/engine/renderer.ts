@@ -15,28 +15,43 @@ interface RendererConfig {
 export class Renderer {
   public particles: ParticleSystem = new ParticleSystem();
   private config: RendererConfig;
+  private initialized: boolean = false;
 
   constructor(config: RendererConfig) {
     this.config = config;
-    this.setupHighDPI();
   }
 
-  private setupHighDPI() {
+  resize(newCellSize: number) {
+    const { ctx, worldSize } = this.config;
+    const { canvas } = ctx;
     const dpr = window.devicePixelRatio || 1;
-    const { canvas } = this.config.ctx;
-    const rect = canvas.getBoundingClientRect();
-    
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    this.config.ctx.scale(dpr, dpr);
+    const cssSize = worldSize * newCellSize;
+
+    if (cssSize <= 0) return;
+
+    this.config.cellSize = newCellSize;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    canvas.style.width = `${cssSize}px`;
+    canvas.style.height = `${cssSize}px`;
+
+    canvas.width = cssSize * dpr;
+    canvas.height = cssSize * dpr;
+    ctx.scale(dpr, dpr);
+
+    this.initialized = true;
   }
 
   /**
    * Performs a full frame draw including grid, reward, snake, and particles.
    */
   paint() {
-    this.config.ctx.fillStyle = "#000";
-    this.config.ctx.fillRect(0, 0, this.config.ctx.canvas.width, this.config.ctx.canvas.height);
+    if (!this.initialized) return;
+
+    const { ctx, worldSize, cellSize } = this.config;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, worldSize * cellSize, worldSize * cellSize);
     this.drawGrid();
     this.drawReward();
     this.drawSnake();
