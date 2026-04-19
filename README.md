@@ -5,7 +5,7 @@ A modern Snake game built with **Rust WASM** backend and **TypeScript** frontend
 ## 🚀 Features
 
 - **Rust WASM Backend**: High-performance game logic
-- **TypeScript Frontend**: Modern web interface with Webpack
+- **TypeScript Frontend**: Modern web interface with Vite
 - **Express Server**: Production-ready static file serving
 - **Dark Theme**: GitHub-inspired design
 - **Responsive Controls**: Arrow keys + WASD support
@@ -18,7 +18,7 @@ A modern Snake game built with **Rust WASM** backend and **TypeScript** frontend
 ```
 snake_game/
 ├── src/           # Rust source code
-├── frontend/       # TypeScript + Webpack
+├── frontend/       # TypeScript + Vite
 ├── server/         # Express.js server
 ├── pkg/           # WASM build output
 └── target/        # Rust build artifacts
@@ -137,7 +137,7 @@ BASE_CELL_SIZE=20
 
 - **`src/lib.rs`**: Rust game logic (World, Snake, GameStatus)
 - **`frontend/index.ts`**: TypeScript game interface
-- **`frontend/webpack.config.js`**: Build configuration
+- **`frontend/vite.config.ts`**: Build configuration
 - **`server/index.js`**: Express server
 - **`pkg/`**: Generated WASM bindings
 
@@ -146,7 +146,7 @@ BASE_CELL_SIZE=20
 ```bash
 make build-all    # Full build: WASM + Frontend
 make start        # Run Express server
-make dev          # WASM build + Webpack dev server
+make dev          # WASM build + Vite dev server
 make test         # Run Rust unit tests
 make clean        # Remove all build artifacts
 ```
@@ -170,7 +170,7 @@ make clean        # Remove all build artifacts
 ### Project Structure
 
 - **`src/`**: Modular Rust game logic (`snake`, `world`, `utils`).
-- **`frontend/`**: TypeScript interface and Webpack configuration.
+- **`frontend/`**: TypeScript interface and Vite configuration.
 - **`server/`**: Production Express server.
 - **`pkg/`**: Generated WASM bindings.
 
@@ -192,7 +192,7 @@ snake_game/
 │   └── lib.rs             # Main Rust code
 ├── frontend/
 │   ├── package.json       # Frontend dependencies
-│   ├── webpack.config.js  # Build configuration
+│   ├── vite.config.ts     # Build configuration
 │   ├── tsconfig.json      # TypeScript config
 │   ├── index.ts           # Main frontend code
 │   ├── utils/

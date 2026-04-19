@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - `CHANGELOG.md` for version tracking.
 
 ### Changed
+- Migrated frontend build system from Webpack to Vite for faster development cycles.
 - Upgraded `wasm-bindgen` to `0.2.118`.
 - Refactored `Makefile` for robust `build-all` and `wasm` targets.
 - Optimized `.gitignore` to exclude generated artifacts from tracking.

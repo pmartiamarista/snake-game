@@ -1,21 +1,19 @@
 {
   "name": "snake-game-frontend",
   "version": "1.0.0",
-  "description": "Snake Game Frontend - TypeScript + Webpack",
+  "description": "Snake Game Frontend - TypeScript + Vite",
   "main": "index.js",
   "scripts": {
-    "predev": "yarn --cwd .. run build:wasm",
-    "dev": "NODE_ENV=development webpack serve",
-    "prebuild": "yarn --cwd .. run build:wasm",
-    "build": "NODE_ENV=production webpack",
-    "build:dev": "NODE_ENV=development webpack",
-    "clean": "rm -rf public/bootstrap.js public/*.map"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "clean": "rm -rf dist"
   },
   "keywords": [
     "snake",
     "game",
     "typescript",
-    "webpack",
+    "vite",
     "wasm"
   ],
   "author": "",
@@ -24,15 +22,11 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "snake_game": "file:../pkg",
-    "ts-loader": "^9.5.4",
-    "typescript": "^5.9.3",
-    "webpack": "^5.102.1",
-    "webpack-cli": "^6.0.1"
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.4",
-    "@babel/preset-env": "^7.28.3",
-    "babel-loader": "^10.0.0",
-    "webpack-dev-server": "^5.2.2"
+    "vite": "^6.0.0",
+    "vite-plugin-top-level-await": "^1.4.4",
+    "vite-plugin-wasm": "^3.4.1"
   }
 }
