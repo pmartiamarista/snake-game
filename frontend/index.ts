@@ -1,182 +1,172 @@
-import init, { World, Direction, GameStatus } from "../pkg/snake_game.js";
-import { random } from "./utils/random";
+import init, { World, Direction, GameStatus, InitOutput } from "../pkg/snake_game.js";
+import { SoundManager } from "./engine/sound";
+import { Renderer } from "./engine/renderer";
 
-async function main() {
-  try {
-    const wasm = await init();
+interface GameConfig {
+  width: number;
+  cellSize: number;
+}
 
-    const CELL_SIZE = parseInt(process.env.CELL_SIZE || "10");
-    const WORLD_WIDTH = parseInt(process.env.WORLD_WIDTH || "64");
-    const BASE_FPS = parseInt(process.env.BASE_FPS || "3");
-    const BASE_CELL_SIZE = parseInt(process.env.BASE_CELL_SIZE || "20");
-    const snakeSpawnIndex = random(WORLD_WIDTH * WORLD_WIDTH);
+/**
+ * Main game orchestrator for Snake.WASM.
+ */
+class SnakeGame {
+  private world: World;
+  private sound: SoundManager;
+  private renderer: Renderer;
+  private fps: number = 10;
+  private config: GameConfig;
+  private scoreValue: HTMLElement;
+  private highScoreValue: HTMLElement;
 
-    const world = World.new(WORLD_WIDTH, snakeSpawnIndex);
-    let gameLoopId: number | null = null;
-
-    const worldSize = world.width();
-
-    const gameControlBtn = <HTMLButtonElement>(
-      document.getElementById("game-control-btn")
-    );
-    const statusElement = <HTMLDivElement>document.getElementById("status");
-    const canvas = <HTMLCanvasElement>document.getElementById("snake-canvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = worldSize * CELL_SIZE;
-    canvas.height = worldSize * CELL_SIZE;
-
-    const updateUI = () => {
-      const gameStatus = world.game_status();
-      
-      gameControlBtn.textContent = world.game_button_text();
-      statusElement.textContent = world.game_status_text();
-      
-      if (gameStatus === GameStatus.Paused || gameStatus === GameStatus.Lost) {
-        canvas.style.opacity = "0.5";
-      } else {
-        canvas.style.opacity = "1";
-      }
-    };
-
-    const stopGameLoop = () => {
-      if (gameLoopId !== null) {
-        cancelAnimationFrame(gameLoopId);
-        gameLoopId = null;
-      }
-    };
-
-    const startGame = () => {
-      stopGameLoop();
-      world.start_game();
-      play();
-      updateUI();
-    };
-
-    const restartGame = () => {
-      stopGameLoop();
-      world.restart_game(random(WORLD_WIDTH * WORLD_WIDTH));
-      play();
-      updateUI();
-    };
-
-    const toggleGame = () => {
-      const gameStatus = world.game_status();
-      if (gameStatus === null || gameStatus === undefined) {
-        startGame();
-      } else if (gameStatus === GameStatus.Played || gameStatus === GameStatus.Paused) {
-        world.toggle_pause();
-        updateUI();
-      } else if (gameStatus === GameStatus.Lost) {
-        restartGame();
-      }
-    };
-
-    gameControlBtn.addEventListener("click", toggleGame);
-
-    document.addEventListener("keydown", event => {
-      if (event.target === canvas || event.target === document.body) {
-        switch (event.key) {
-          case "Enter":
-            toggleGame();
-            break;
-          case "ArrowUp":
-          case "w":
-          case "W":
-            world.change_snake_direction(Direction.Up);
-            break;
-          case "ArrowRight":
-          case "d":
-          case "D":
-            world.change_snake_direction(Direction.Right);
-            break;
-          case "ArrowDown":
-          case "s":
-          case "S":
-            world.change_snake_direction(Direction.Down);
-            break;
-          case "ArrowLeft":
-          case "a":
-          case "A":
-            world.change_snake_direction(Direction.Left);
-            break;
-        }
-      }
+  constructor(wasm: InitOutput, world: World, sound: SoundManager, config: GameConfig) {
+    this.world = world;
+    this.sound = sound;
+    this.config = config;
+    
+    this.scoreValue = document.getElementById("score")!;
+    this.highScoreValue = document.getElementById("high-score")!;
+    
+    const canvas = document.getElementById("snake-canvas") as HTMLCanvasElement;
+    const ctx = canvas.getContext("2d")!;
+    canvas.width = config.width * config.cellSize;
+    canvas.height = config.width * config.cellSize;
+    
+    this.renderer = new Renderer({
+      ctx,
+      world,
+      cellSize: config.cellSize,
+      worldSize: config.width,
+      wasmMemory: wasm.memory
     });
+    this.attachControls();
+    this.renderLoop();
+  }
 
-    const drawWorld = () => {
-      ctx.strokeStyle = "#30363d";
-      for (let x = 0; x <= worldSize; x++) {
-        ctx.beginPath();
-        ctx.moveTo(x * CELL_SIZE, 0);
-        ctx.lineTo(x * CELL_SIZE, worldSize * CELL_SIZE);
-        ctx.stroke();
-      }
-      for (let y = 0; y <= worldSize; y++) {
-        ctx.beginPath();
-        ctx.moveTo(0, y * CELL_SIZE);
-        ctx.lineTo(worldSize * CELL_SIZE, y * CELL_SIZE);
-        ctx.stroke();
-      }
+  /**
+   * Initializes the game engine and WASM module.
+   */
+  static async init() {
+    const wasm = await init();
+    const config: GameConfig = {
+      cellSize: parseInt((import.meta.env.VITE_CELL_SIZE as string) || "20"),
+      width: parseInt((import.meta.env.VITE_WORLD_WIDTH as string) || "32")
     };
+    const world = World.new(config.width, Math.floor(Math.random() * config.width * config.width));
+    const sound = new SoundManager();
+    
+    return new SnakeGame(wasm, world, sound, config);
+  }
 
-    const drawReward = () => {
-      const idx = world.reward_cell();
-      const col = idx % worldSize;
-      const row = Math.floor(idx / worldSize);
-      ctx.fillStyle = "#f85149";
-      ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    };
-
-    const drawSnake = () => {
-      const snakeCells = new Uint32Array(
-        wasm.memory.buffer,
-        world.snake_cells(),
-        world.snake_length()
-      );
-      snakeCells.forEach((cell, index) => {
-        const column = cell % worldSize;
-        const row = Math.floor(cell / worldSize);
-        ctx.fillStyle = index === 0 ? "#58a6ff" : "#7c3aed";
-        ctx.fillRect(column * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+  private attachControls() {
+    window.addEventListener("keydown", (e) => this.handleKeyDown(e));
+    document.querySelectorAll(".ctrl-btn").forEach(btn => {
+      btn.addEventListener("pointerdown", () => {
+        const dir = (btn as HTMLElement).dataset.dir;
+        if (dir) this.handleInput(Direction[dir as keyof typeof Direction]);
       });
+    });
+    document.getElementById("start-btn")?.addEventListener("click", () => this.start());
+    document.getElementById("restart-btn")?.addEventListener("click", () => this.restart());
+    this.attachDifficultySelectors();
+  }
+
+  private attachDifficultySelectors() {
+    const diffButtons = document.querySelectorAll(".btn-diff");
+    diffButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        diffButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        this.fps = parseInt((btn as HTMLElement).dataset.fps || "10");
+      });
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent) {
+    const map: Record<string, Direction> = {
+      ArrowUp: Direction.Up, w: Direction.Up,
+      ArrowDown: Direction.Down, s: Direction.Down,
+      ArrowLeft: Direction.Left, a: Direction.Left,
+      ArrowRight: Direction.Right, d: Direction.Right
     };
+    if (map[e.key] !== undefined) this.handleInput(map[e.key]);
+    if (e.key === "Enter") this.handleEnter();
+  }
 
-    const paint = () => {
-      drawWorld();
-      drawReward();
-      drawSnake();
-    };
+  private handleEnter() {
+    const startOverlay = document.getElementById("start-overlay");
+    const gameOverOverlay = document.getElementById("game-over-overlay");
+    const startHidden = startOverlay?.classList.contains("hidden");
+    const overHidden = gameOverOverlay?.classList.contains("hidden");
+    if (!startHidden) this.start();
+    else if (!overHidden) this.restart();
+  }
 
-    const fps = Math.max(
-      BASE_FPS,
-      (WORLD_WIDTH * BASE_CELL_SIZE) / CELL_SIZE / 4
-    );
+  private handleInput(dir: Direction) {
+    this.world.change_snake_direction(dir);
+    this.sound.playMove();
+  }
 
-    const play = () => {
-      setTimeout(() => {
-        const gameStatus = world.game_status();
-        if (gameStatus === GameStatus.Played) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          world.step();
-          paint();
-          document.getElementById("score").textContent = `Score: ${world.score()}`;
-        }
-        
-        if (gameStatus === GameStatus.Lost) {
-          updateUI();
-          stopGameLoop();
-          return;
-        }
-        
-        gameLoopId = requestAnimationFrame(play);
-      }, 1000 / fps);
-    };
+  private start() {
+    this.sound.init();
+    document.getElementById("start-overlay")?.classList.add("hidden");
+    document.getElementById("game-over-overlay")?.classList.add("hidden");
+    this.world.start_game();
+    this.logicLoop();
+  }
 
-    paint();
-  } catch (error) {
-    console.error("Failed to load WASM:", error);
+  private restart() {
+    this.world.restart_game(Math.floor(Math.random() * this.config.width * this.config.width));
+    this.start();
+  }
+
+  private renderLoop() {
+    this.renderer.paint();
+    requestAnimationFrame(() => this.renderLoop());
+  }
+
+  private logicLoop() {
+    if (this.world.game_status() !== GameStatus.Played) return;
+    
+    const oldScore = this.world.score();
+    this.world.step();
+    this.handleScoreChange(oldScore);
+    this.updateUI();
+    
+    if (this.world.game_status() === GameStatus.Lost) {
+      this.sound.playGameOver();
+      this.gameOver();
+      return;
+    }
+
+    setTimeout(() => this.logicLoop(), 1000 / (this.fps + Math.floor(this.world.score() / 5)));
+  }
+
+  private handleScoreChange(oldScore: number) {
+    if (this.world.score() > oldScore) {
+      this.sound.playEat();
+      const idx = this.world.reward_cell();
+      const x = (idx % this.config.width) * this.config.cellSize + this.config.cellSize / 2;
+      const y = Math.floor(idx / this.config.width) * this.config.cellSize + this.config.cellSize / 2;
+      this.renderer.particles.spawn(x, y, "#f85149");
+    }
+  }
+
+  private updateUI() {
+    const score = this.world.score();
+    this.scoreValue.textContent = score.toString();
+    const stored = localStorage.getItem("snake-high-score");
+    const lastHigh = parseInt(stored || "0");
+    if (score > lastHigh) {
+      localStorage.setItem("snake-high-score", score.toString());
+      this.highScoreValue.textContent = score.toString();
+    }
+  }
+
+  private gameOver() {
+    document.getElementById("final-score")!.textContent = `Score: ${this.world.score()}`;
+    document.getElementById("game-over-overlay")?.classList.remove("hidden");
   }
 }
 
-main();
+SnakeGame.init();

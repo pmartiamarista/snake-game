@@ -1,7 +1,7 @@
 {
   "name": "snake-game-frontend",
   "version": "1.0.0",
-  "description": "Snake Game Frontend - TypeScript + Vite",
+  "description": "Snake Game - TypeScript, Vite & WebAssembly Frontend",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -20,13 +20,15 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "dotenv": "^17.2.3",
     "snake_game": "file:../pkg",
-    "typescript": "^5.9.3"
+    "typescript": "6.0.3"
   },
   "devDependencies": {
-    "vite": "^6.0.0",
-    "vite-plugin-top-level-await": "^1.4.4",
-    "vite-plugin-wasm": "^3.4.1"
+    "@types/node": "22.10.0",
+    "esbuild": "0.28.0",
+    "rollup": "4.34.8",
+    "vite": "8.0.8",
+    "vite-plugin-top-level-await": "1.6.0",
+    "vite-plugin-wasm": "3.6.0"
   }
 }

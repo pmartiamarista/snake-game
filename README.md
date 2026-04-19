@@ -6,11 +6,14 @@ A modern Snake game built with **Rust WASM** backend and **TypeScript** frontend
 
 - **Rust WASM Backend**: High-performance game logic
 - **TypeScript Frontend**: Modern web interface with Vite
+- **Game Engine**: Modular particle system, renderer, and sound management
+- **CSS Styling System**: Modern dark theme with GitHub-inspired design
 - **Express Server**: Production-ready static file serving
-- **Dark Theme**: GitHub-inspired design
-- **Responsive Controls**: Arrow keys + WASD support
+- **Responsive Controls**: Arrow keys + WASD support + mobile touch controls
 - **Game States**: Ready, Playing, Paused, Lost
-- **Score System**: Track your progress
+- **Difficulty Levels**: Easy, Medium, Hard with adjustable FPS
+- **Score System**: Track progress with high score persistence
+- **Sound Effects**: Audio feedback for game events
 - **Accessibility**: ARIA labels and keyboard navigation
 
 ## 🏗️ Architecture
@@ -18,7 +21,9 @@ A modern Snake game built with **Rust WASM** backend and **TypeScript** frontend
 ```
 snake_game/
 ├── src/           # Rust source code
-├── frontend/       # TypeScript + Vite
+├── frontend/       # TypeScript + Vite + Game Engine
+│   ├── engine/       # Particle system, renderer, sound
+│   └── index.css     # Modern CSS styling
 ├── server/         # Express.js server
 ├── pkg/           # WASM build output
 └── target/        # Rust build artifacts
@@ -136,9 +141,12 @@ BASE_CELL_SIZE=20
 ### Project Structure
 
 - **`src/lib.rs`**: Rust game logic (World, Snake, GameStatus)
-- **`frontend/index.ts`**: TypeScript game interface
-- **`frontend/vite.config.ts`**: Build configuration
-- **`server/index.js`**: Express server
+- **`src/utils/mod.rs`**: Rust-based random number generation using js-sys
+- **`frontend/index.ts`**: TypeScript game interface with game engine integration
+- **`frontend/engine/`**: Modular game engine (particles, renderer, sound)
+- **`frontend/index.css`**: Modern CSS styling system
+- **`frontend/vite.config.ts`**: Vite build configuration with WASM support
+- **`server/index.js`**: Express server with security headers
 - **`pkg/`**: Generated WASM bindings
 
 ### Makefile Commands
@@ -192,13 +200,16 @@ snake_game/
 │   └── lib.rs             # Main Rust code
 ├── frontend/
 │   ├── package.json       # Frontend dependencies
-│   ├── vite.config.ts     # Build configuration
-│   ├── tsconfig.json      # TypeScript config
+│   ├── vite.config.ts     # Vite build configuration
+│   ├── tsconfig.json      # TypeScript configuration
 │   ├── index.ts           # Main frontend code
-│   ├── utils/
-│   │   └── random.js      # Utility functions
+│   ├── index.css          # CSS styling system
+│   ├── engine/
+│   │   ├── particles.ts   # Particle system
+│   │   ├── renderer.ts    # Game renderer
+│   │   └── sound.ts       # Sound management
 │   └── public/
-│       ├── index.html      # HTML template
+│       ├── index.html      # HTML template with favicon
 │       └── *.wasm         # WASM files
 ├── server/
 │   └── index.js           # Express server
@@ -246,11 +257,12 @@ ISC License - see LICENSE file for details
 
 ## 🎯 Future Enhancements
 
-- [ ] High score persistence
-- [ ] Multiple difficulty levels
-- [ ] Sound effects
-- [ ] Mobile touch controls
+- [x] High score persistence
+- [x] Multiple difficulty levels (Easy, Medium, Hard)
+- [x] Sound effects
+- [x] Mobile touch controls
 - [ ] Multiplayer support
 - [ ] Custom themes
+- [ ] Power-ups and special abilities
 
 ---

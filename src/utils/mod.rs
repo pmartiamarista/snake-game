@@ -1,10 +1,6 @@
 #[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
-
-#[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(module = "/frontend/utils/random.js")]
-extern "C" {
-    pub fn random(max: usize) -> usize;
+pub fn random(max: usize) -> usize {
+    (js_sys::Math::random() * max as f64) as usize
 }
 
 #[cfg(not(target_arch = "wasm32"))]
