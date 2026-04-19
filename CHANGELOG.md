@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2026-04-19
+
+### Added
+- **Pause Modal**: Responsive overlay that appears when the game is paused, providing clear visual feedback.
+- **Mobile Pause Controls**: Dedicated ⏸ button integrated into the touch control grid for mobile responsiveness.
+- **Improved UX**: "START GAME" label and ergonomic button placements.
+
+### Changed
+- **Unified Engine Refactor**: Migrated game logic into the `requestAnimationFrame` loop. This eliminates "stopping" or stuttering on mobile caused by browser timer throttling during touch events.
+- **Frame-Locked Stepping**: Implemented high-precision `performance.now()` accumulator for consistent snake speed regardless of device refresh rate (60Hz/120Hz).
+
+### Fixed
+- **Expansion Bug**: Fixed `ResizeObserver` logic to correctly detect and expand the board when the browser window is enlarged.
+- **Input Hitching**: Blocked default browser behaviors (scrolling, magnification) on directional buttons to ensure zero-lag input on mobile.
+
 ## [1.2.0] - 2026-04-19
 
 ### Added

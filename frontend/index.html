@@ -31,11 +31,6 @@
     <div id="start-overlay" class="overlay">
       <div class="menu-card">
         <h2>SNAKE</h2>
-        <div class="difficulty-selector">
-          <button class="btn-diff active" data-fps="8">EASY</button>
-          <button class="btn-diff" data-fps="15">MEDIUM</button>
-          <button class="btn-diff" data-fps="25">HARD</button>
-        </div>
         <div id="loading-status" style="margin-bottom: 2rem; font-size: 0.875rem; color: var(--text-dim)">
           Verifying prerequisites...
         </div>
@@ -51,6 +46,14 @@
       </div>
     </div>
 
+    <div id="pause-overlay" class="overlay hidden">
+      <div class="menu-card">
+        <h2>PAUSED</h2>
+        <p style="margin-bottom: 2rem; color: var(--text-dim)">Press SPACE or ENTER to resume</p>
+        <button class="btn-primary" onclick="window.dispatchEvent(new KeyboardEvent('keydown', {key: ' '}))">RESUME</button>
+      </div>
+    </div>
+
     <div class="canvas-container">
       <canvas id="snake-canvas" aria-label="Snake game area"></canvas>
     </div>
@@ -58,6 +61,7 @@
     <div class="mobile-controls">
       <button class="ctrl-btn up" data-dir="Up">↑</button>
       <button class="ctrl-btn left" data-dir="Left">←</button>
+      <button class="ctrl-btn pause" id="mobile-pause">⏸</button>
       <button class="ctrl-btn right" data-dir="Right">→</button>
       <button class="ctrl-btn down" data-dir="Down">↓</button>
     </div>

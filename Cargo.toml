@@ -1,6 +1,6 @@
 [package]
 name = "snake_game"
-version = "1.2.0"
+version = "1.2.1"
 edition = "2024"
 description = "A modern Snake game built with Rust WASM and TypeScript frontend"
 authors = ["Your Name <your.email@example.com>"]

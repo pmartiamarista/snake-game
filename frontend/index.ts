@@ -24,8 +24,10 @@ class SnakeGame {
   private sound: SoundManager;
   private storage: StorageProvider;
   private renderer: Renderer;
-  private fps: number = 10;
+  private fps: number = 12;
   private config: GameConfig;
+  private lastFrameTime: number = 0;
+  private accumulator: number = 0;
   private scoreValue!: HTMLElement;
   private highScoreValue!: HTMLElement;
 
@@ -54,7 +56,7 @@ class SnakeGame {
 
     this.attachControls();
     this.setupResizeObserver();
-    this.renderLoop();
+    this.renderLoop(performance.now());
   }
 
   private bindUI() {
@@ -63,7 +65,7 @@ class SnakeGame {
   }
 
   private setupResizeObserver() {
-    const container = document.querySelector(".canvas-container") as HTMLElement;
+    const target = document.querySelector("main") as HTMLElement;
     const observer = new ResizeObserver(() => {
       const newCellSize = computeCellSize(this.config.width);
       if (newCellSize === this.config.cellSize) return;
@@ -79,51 +81,60 @@ class SnakeGame {
         this.renderer.resize(newCellSize);
       }
     });
-    observer.observe(container);
+    observer.observe(target);
   }
 
   private attachControls() {
     window.addEventListener("keydown", (e) => this.handleKeyDown(e));
     document.querySelectorAll(".ctrl-btn").forEach(btn => {
-      btn.addEventListener("pointerdown", () => {
+      btn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
         const dir = (btn as HTMLElement).dataset.dir;
         if (dir) this.handleInput(Direction[dir as keyof typeof Direction]);
       });
     });
     document.getElementById("start-btn")?.addEventListener("click", () => this.start());
     document.getElementById("restart-btn")?.addEventListener("click", () => this.restart());
-    this.attachDifficultySelectors();
-  }
-
-  private attachDifficultySelectors() {
-    const diffButtons = document.querySelectorAll(".btn-diff");
-    diffButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        diffButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        this.fps = parseInt((btn as HTMLElement).dataset.fps || "10");
-      });
+    document.getElementById("mobile-pause")?.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      this.handleActionKey();
     });
   }
 
+
   private handleKeyDown(e: KeyboardEvent) {
+    if (e.repeat) return;
+
     const map: Record<string, Direction> = {
       ArrowUp: Direction.Up, w: Direction.Up,
       ArrowDown: Direction.Down, s: Direction.Down,
       ArrowLeft: Direction.Left, a: Direction.Left,
       ArrowRight: Direction.Right, d: Direction.Right
     };
-    if (map[e.key] !== undefined) this.handleInput(map[e.key]);
-    if (e.key === "Enter") this.handleEnter();
+
+    if (map[e.key] !== undefined) {
+      this.handleInput(map[e.key]);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      this.handleActionKey();
+    }
   }
 
-  private handleEnter() {
+  private handleActionKey() {
     const startOverlay = document.getElementById("start-overlay");
     const gameOverOverlay = document.getElementById("game-over-overlay");
     const startHidden = startOverlay?.classList.contains("hidden");
     const overHidden = gameOverOverlay?.classList.contains("hidden");
-    if (!startHidden) this.start();
-    else if (!overHidden) this.restart();
+
+    if (!startHidden) {
+      this.start();
+    } else if (!overHidden) {
+      this.restart();
+    } else {
+      this.world.toggle_pause();
+      const isPaused = this.world.game_status() === GameStatus.Paused;
+      document.getElementById("pause-overlay")?.classList.toggle("hidden", !isPaused);
+    }
   }
 
   private handleInput(dir: Direction) {
@@ -135,8 +146,10 @@ class SnakeGame {
     this.sound.init();
     document.getElementById("start-overlay")?.classList.add("hidden");
     document.getElementById("game-over-overlay")?.classList.add("hidden");
+    document.getElementById("pause-overlay")?.classList.add("hidden");
+    this.lastFrameTime = performance.now();
+    this.accumulator = 0;
     this.world.start_game();
-    this.logicLoop();
   }
 
   private restart() {
@@ -144,27 +157,33 @@ class SnakeGame {
     this.start();
   }
 
-  private renderLoop() {
-    this.renderer.paint();
-    requestAnimationFrame(() => this.renderLoop());
-  }
-
-  private logicLoop() {
-    if (this.world.game_status() !== GameStatus.Played) return;
-    
-    const oldScore = this.world.score();
-    this.world.step();
-    this.handleScoreChange(oldScore);
-    this.updateUI();
-    
-    if (this.world.game_status() === GameStatus.Lost) {
-      this.sound.playGameOver();
-      this.gameOver();
-      return;
+  private renderLoop(timestamp: number) {
+    if (this.world.game_status() === GameStatus.Played) {
+      const delta = timestamp - this.lastFrameTime;
+      this.accumulator += delta;
+      
+      const stepDuration = 1000 / (this.fps + Math.floor(this.world.score() / 5));
+      
+      while (this.accumulator >= stepDuration) {
+        const oldScore = this.world.score();
+        this.world.step();
+        this.handleScoreChange(oldScore);
+        this.updateUI();
+        
+        if (this.world.game_status() === GameStatus.Lost) {
+          this.sound.playGameOver();
+          this.gameOver();
+          break;
+        }
+        this.accumulator -= stepDuration;
+      }
     }
-
-    setTimeout(() => this.logicLoop(), 1000 / (this.fps + Math.floor(this.world.score() / 5)));
+    
+    this.lastFrameTime = timestamp;
+    this.renderer.paint();
+    requestAnimationFrame((t) => this.renderLoop(t));
   }
+
 
   private handleScoreChange(oldScore: number) {
     if (this.world.score() > oldScore) {
@@ -227,7 +246,7 @@ class Bootstrapper {
 
   private static enableEngine(wasm: InitOutput, btn: HTMLButtonElement, updateStatus: (m: string) => void) {
     btn.disabled = false;
-    btn.textContent = "START ENGINE";
+    btn.textContent = "START GAME";
     
     btn.addEventListener("click", () => {
       updateStatus("Active");

@@ -1,11 +1,13 @@
-# Snake.WASM 🐍
+# Snake.WASM (v1.2.1)
 
 A premium, high-performance Snake game built with a **Rust WASM** core and a **TypeScript** frontend. This project demonstrates a modern dual-loop architecture, procedural visual effects, and strict engineering standards.
 
 ## 🚀 Key Features
 
 - **Dual-Loop Architecture**: High-fidelity 60FPS rendering loop decoupled from chunky game physics logic.
-- **Mobile Responsive Engine**: Fully adaptive layout with `ResizeObserver` tracking and iOS safe-area support.
+- **Unified Engine**: Merged logic and render loops using `requestAnimationFrame` for stutter-free mobile experience.
+- **Intelligent Pause**: Full pause/resume support via `Space`, `Enter`, or dedicated mobile controls with visual modal.
+- **Mobile First**: Responsive board scaling, touch-optimized D-pad, and safe-area (notch) support.
 - **High-DPI Scaling**: Automatic DPR detection and canvas scaling for pixel-perfect rendering on Retina and mobile displays.
 - **Rust WASM Core**: Optimized game state management with self-contained random generation via `js-sys`.
 - **Premium Visuals**: Neon Dark aesthetic with glassmorphism UI and real-time particle feedback.
