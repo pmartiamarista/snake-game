@@ -1,4 +1,4 @@
-name: Deploy static content to Pages
+name: Deploy Snake Game
 
 on:
   push:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   build-and-deploy:
     environment:
-      name: github-pages
+      name: snake-game-prod
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
@@ -60,6 +60,13 @@ jobs:
           cd frontend && npm install
 
       - name: Build Frontend
+        env:
+          PORT: ${{ vars.PORT }}
+          NODE_ENV: ${{ vars.NODE_ENV }}
+          WORLD_WIDTH: ${{ vars.WORLD_WIDTH }}
+          CELL_SIZE: ${{ vars.CELL_SIZE }}
+          DEV_SERVER_PORT: ${{ vars.DEV_SERVER_PORT }}
+          COMPRESSION: ${{ vars.COMPRESSION }}
         run: |
           cd frontend && npm run build
 
