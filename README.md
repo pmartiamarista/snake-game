@@ -1,39 +1,46 @@
-# Snake Game 🐍
+# Snake.WASM 🐍
 
-A modern Snake game built with **Rust WASM** backend and **TypeScript** frontend, featuring a clean architecture and production-ready build system.
+A premium, high-performance Snake game built with a **Rust WASM** core and a **TypeScript** frontend. This project demonstrates a modern dual-loop architecture, procedural visual effects, and strict engineering standards.
 
-## 🚀 Features
+## 🚀 Key Features
 
-- **Rust WASM Backend**: High-performance game logic
-- **TypeScript Frontend**: Modern web interface with Vite
-- **Game Engine**: Modular particle system, renderer, and sound management
-- **CSS Styling System**: Modern dark theme with GitHub-inspired design
-- **Express Server**: Production-ready static file serving
-- **Responsive Controls**: Arrow keys + WASD support + mobile touch controls
-- **Game States**: Ready, Playing, Paused, Lost
-- **Difficulty Levels**: Easy, Medium, Hard with adjustable FPS
-- **Score System**: Track progress with high score persistence
-- **Sound Effects**: Audio feedback for game events
-- **Accessibility**: ARIA labels and keyboard navigation
+- **Dual-Loop Architecture**: High-fidelity 60FPS rendering loop decoupled from chunky game physics logic.
+- **Rust WASM Core**: Optimized game state management with self-contained random generation via `js-sys`.
+- **Premium Visuals**: Neon Dark aesthetic with glassmorphism UI and real-time particle feedback.
+- **Procedural Audio**: Dynamic sound effects generated using the Web Audio API.
+- **Modern Build Stack**: Powered by Vite 8.0.8, TypeScript 6.0.3, and Rust 2024.
+- **Production Ready**: Express.js server with security headers and Gzip compression.
 
 ## 🏗️ Architecture
 
+The project is designed with a strict separation of concerns, utilizing a layered approach that isolates the pure domain logic from integration details.
+
 ```
 snake_game/
-├── src/           # Rust source code
-├── frontend/       # TypeScript + Vite + Game Engine
-│   ├── engine/       # Particle system, renderer, sound
-│   └── index.css     # Modern CSS styling
-├── server/         # Express.js server
-├── pkg/           # WASM build output
-└── target/        # Rust build artifacts
+├── src/               # Rust Domain Logic
+│   ├── snake/         # Snake body and movement state
+│   ├── world/         # Game grid and collision logic
+│   └── utils/         # Cross-platform utility traits
+├── frontend/          # TypeScript Application Layer
+│   ├── engine/        # Modular Game Engine (Renderer, Particles, Sound)
+│   ├── index.ts       # Application Entry & Orchestration
+│   └── index.css      # Design System & Token Definitions
+├── pkg/               # Compiled WebAssembly Bindings
+├── server/            # Production Node.js/Express Server
+└── Makefile           # Central Build Orchestrator
 ```
 
-## 🛠️ Prerequisites
+## 🛠️ Project Standards
 
-- **Rust** (latest stable)
-- **Node.js** (v16+)
-- **npm** or **yarn**
+This codebase strictly adheres to the following engineering standards:
+
+- **Zero-Comment Policy**: Clarity is achieved through expressive naming and modular structure; comments are prohibited in production code.
+- **Naming & Intent**: Abbreviations are avoided in favor of descriptive names that explain purpose (e.g., `renderingContext` over `ctx`).
+- **Complexity Limits**: Functions are capped at **40 lines**, and files at **300 lines** to ensure readability and single responsibility.
+- **Parameter Constraints**: Functions accept a maximum of **4 parameters**; complex signatures are refactored into typed configuration objects.
+- **Exact-Pinning**: All dependencies in `package.json` and `Cargo.toml` are pinned to exact versions for deterministic builds.
+- **Explicit Error Handling**: Robust error propagation using `Result` and `Option` (Rust) and typed error handling (TS).
+- **Testing Integrity**: Every public function requires at least one happy-path and one edge-case test to verify semantic invariants.
 
 ## 📦 Installation
 
@@ -45,224 +52,67 @@ snake_game/
 
 2. **Install dependencies**
    ```bash
-   # Root dependencies (Express server)
+   # Root & Server dependencies
    npm install
    
-   # Frontend dependencies
-   cd frontend
-   npm install
-   cd ..
+   # Frontend Application dependencies
+   cd frontend && npm install && cd ..
    ```
 
 3. **Setup environment**
    ```bash
-   # Copy environment template
    cp env.template .env
-   # Edit .env with your preferences
    ```
 
 ## 🎮 Usage
 
-### Development
+### High-Level Commands
+| Command | Profile | Description |
+|----------|---------|-------------|
+| `make dev` | Dev | Start WASM build with Vite hot-reload |
+| `make build-all` | Prod | Full production build (WASM + Frontend) |
+| `make start` | Prod | Launch Express server on port 3000 |
 
-```bash
-# Option 1: Using Makefile (recommended)
-make dev
-
-# Option 2: Using npm scripts
-cd frontend && npm run dev
-# Or from root: npm run dev:frontend
-```
-
-### Production
-
-```bash
-# Option 1: Using Makefile (recommended)
-make build-all
-make start
-
-# Option 2: Using npm scripts
-npm run build
-npm start
-```
-
-### Individual Commands
-
-```bash
-# Makefile commands
-make wasm         # Build WASM only
-make check         # Check Rust code quality
-make fmt           # Format Rust code
-make clippy        # Lint Rust code
-make clean         # Clean all artifacts
-
-# npm scripts
-npm run build:wasm     # Build WASM only
-npm run build:frontend # Build frontend only
-cd frontend && npm run clean  # Clean frontend artifacts
-```
-
-## 🎯 Game Controls
-
-- **Start/Pause/Resume**: `Enter` key or click button
-- **Movement**: Arrow keys or `WASD`
-- **Restart**: `Enter` key or click button (when lost)
+### Technical Reference
+| Command | Description |
+|----------|-------------|
+| `make wasm` | Compile Rust to WebAssembly with wasm-bindgen glue |
+| `make check` | Run cargo fmt and clippy for quality assurance |
+| `make test` | Execute Rust unit and integration tests |
+| `make clean` | Purge all build artifacts and node_modules |
 
 ## ⚙️ Configuration
 
-### Environment Variables
+Game parameters are managed via environment variables in the `.env` file:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3000` | Server port |
-| `NODE_ENV` | `development` | Environment mode |
-| `WORLD_WIDTH` | `64` | Game world size |
-| `CELL_SIZE` | `10` | Cell size in pixels |
-| `BASE_FPS` | `3` | Base game speed |
-| `BASE_CELL_SIZE` | `20` | Base cell size for FPS calculation |
-| `DEV_SERVER_PORT` | `8000` | Development server port |
-| `HOT_RELOAD` | `true` | Enable hot reload in dev |
-| `COMPRESSION` | `true` | Enable gzip compression |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_WORLD_WIDTH` | Grid dimension of the game world | `32` |
+| `VITE_CELL_SIZE` | Individual cell size in pixels | `20` |
+| `PORT` | Production server listening port | `3000` |
+| `DEV_SERVER_PORT` | Vite development server port | `8000` |
+| `NODE_ENV` | Mode (`development` or `production`) | `development` |
+| `HOT_RELOAD` | Enable HMR for frontend development | `true` |
+| `COMPRESSION` | Enable Gzip compression in production | `true` |
 
-### Game Settings
+## 🕹️ Controls
+- **Movement**: Arrow Keys / WASD / Mobile D-pad
+- **Commands**: `Enter` to Start or Restart (when Game Over)
+- **Settings**: Real-time difficulty/speed selection on Home Screen
 
-Game parameters are configured via environment variables in `.env` file:
-
-```bash
-# Game Configuration
-WORLD_WIDTH=64
-CELL_SIZE=10
-BASE_FPS=3
-BASE_CELL_SIZE=20
-```
-
-## 🔧 Development
-
-### Project Structure
-
-- **`src/lib.rs`**: Rust game logic (World, Snake, GameStatus)
-- **`src/utils/mod.rs`**: Rust-based random number generation using js-sys
-- **`frontend/index.ts`**: TypeScript game interface with game engine integration
-- **`frontend/engine/`**: Modular game engine (particles, renderer, sound)
-- **`frontend/index.css`**: Modern CSS styling system
-- **`frontend/vite.config.ts`**: Vite build configuration with WASM support
-- **`server/index.js`**: Express server with security headers
-- **`pkg/`**: Generated WASM bindings
-
-### Makefile Commands
-
-```bash
-make build-all    # Full build: WASM + Frontend
-make start        # Run Express server
-make dev          # WASM build + Vite dev server
-make test         # Run Rust unit tests
-make clean        # Remove all build artifacts
-```
-
-### Installation
-
-1. **Install dependencies**
-   ```bash
-   npm install
-   cd frontend && npm install
-   ```
-
-2. **Build and Run**
-   ```bash
-   make build-all
-   make start
-   ```
-
-## ⚙️ Development
-
-### Project Structure
-
-- **`src/`**: Modular Rust game logic (`snake`, `world`, `utils`).
-- **`frontend/`**: TypeScript interface and Vite configuration.
-- **`server/`**: Production Express server.
-- **`pkg/`**: Generated WASM bindings.
-
-### Quality Assurance
-
-- **Rust**: idiomatic patterns, no comments, high modularity.
-- **Testing**: logic verified via `src/world/tests.rs` and `src/snake/tests.rs`.
-
-## 📁 File Structure
-
-```
-snake_game/
-├── .gitignore              # Git ignore rules
-├── env.template           # Environment template
-├── package.json           # Root package config
-├── Cargo.toml             # Rust dependencies
-├── Makefile               # Rust build commands
-├── src/
-│   └── lib.rs             # Main Rust code
-├── frontend/
-│   ├── package.json       # Frontend dependencies
-│   ├── vite.config.ts     # Vite build configuration
-│   ├── tsconfig.json      # TypeScript configuration
-│   ├── index.ts           # Main frontend code
-│   ├── index.css          # CSS styling system
-│   ├── engine/
-│   │   ├── particles.ts   # Particle system
-│   │   ├── renderer.ts    # Game renderer
-│   │   └── sound.ts       # Sound management
-│   └── public/
-│       ├── index.html      # HTML template with favicon
-│       └── *.wasm         # WASM files
-├── server/
-│   └── index.js           # Express server
-└── pkg/                   # WASM build output
-```
-
-## 🚀 Deployment
-
-### Local Production
-
-```bash
-# Option 1: Using Makefile (recommended)
-make build-all
-make start
-
-# Option 2: Using npm scripts
-npm run build
-npm start
-```
-
-### Docker (Optional)
-
+## 🐳 Deployment
 ```dockerfile
-FROM node:18-alpine
+FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 RUN make build-all
 EXPOSE 3000
-CMD ["make", "start"]
+CMD ["npm", "start"]
 ```
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
 ## 📄 License
-
-ISC License - see LICENSE file for details
-
-## 🎯 Future Enhancements
-
-- [x] High score persistence
-- [x] Multiple difficulty levels (Easy, Medium, Hard)
-- [x] Sound effects
-- [x] Mobile touch controls
-- [ ] Multiplayer support
-- [ ] Custom themes
-- [ ] Power-ups and special abilities
+ISC License - Copyright (c) 2026
 
 ---
